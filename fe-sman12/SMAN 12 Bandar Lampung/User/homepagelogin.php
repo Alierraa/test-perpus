@@ -119,7 +119,7 @@ $queryBuku = $conn->query("SELECT * FROM buku");
                 <!-- Ganti Stok Tersedia dengan data stok dari database -->
                 <p class="stok-text">Stok Tersedia: <?php echo $row['jumlah']; ?></p>
 
-                <a href="" class="btn">Tambahkan</a>
+                <a href="add_chart.php?judul=<?php echo urlencode($row['judul_buku']); ?>&nomor=<?php echo $row['nomor_buku']; ?>&jumlah=1" class="btn">Tambahkan</a>
             </div>
 
 

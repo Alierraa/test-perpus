@@ -1,3 +1,27 @@
+<?php
+session_start();
+
+// Cek apakah pengguna sudah login, jika belum, redirect ke halaman login
+if (!isset($_SESSION['username'])) {
+    header("location: ../Admin/login.php");
+    exit();
+}
+
+include 'config.php';
+
+// Fetch data from the "cart_peminjaman" table
+$queryCartPeminjaman = "SELECT * FROM cart_peminjaman";
+$resultPeminjaman = mysqli_query($conn, $queryCartPeminjaman);
+
+// Check if the query was successful
+if (!$resultPeminjaman) {
+    die("Query failed: " . mysqli_error($conn));
+}
+
+// Close the database connection
+mysqli_close($conn);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -108,51 +132,36 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th></th>
-                        <th></th>
+                        <th>Nama</th>
                         <th>Nomor Buku</th>
                         <th>Judul Buku</th>
                         <th>Tanggal Pinjam</th>
                         <th>Tanggal Kembali</th>
                         <th>Jumlah</th>
-                        <th></th>
-
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1.</td>
-                        <td><input type="checkbox" name="CHECK" value=""><br></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-                        <td><a href="" class="button">Hapus</a></td>
-                    </tr>
-                    <tr>
-                        <td>2.</td>
-                        <td><input type="checkbox" name="CHECK" value=""><br></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-                        <td><a href="" class="button">Hapus</a></td>
-                    </tr>
-                    <tr>
-                        <td>3.</td>
-                        <td><input type="checkbox" name="CHECK" value=""><br></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-                        <td><a href="" class="button">Hapus</a></td>
-                    </tr>
+                <?php
+                    $no = 1;
+                    while ($rowPeminjaman = mysqli_fetch_assoc($resultPeminjaman)) {
+                        $rowColor = ($no % 2 == 0) ? '#9EDDFF' : '#F4F4F4';
+                        echo "<tr style='background-color: {$rowColor};'>";
+                        echo "<td style='text-align: center;'>{$no}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['nama']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['nomor']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['judul']}</td>";
+                        echo "<td style='text-align: center;'><input type='date' id='tanggal{$no}'></td>";
+                        echo "<td style='text-align: center;'><input type='date' id='tenggat{$no}'></td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['jumlah']}</td>";
+                        echo "<td style='text-align: center; padding: 10px;'>
+                            <a href='#' id='ajukan{$no}' data-id='{$rowPeminjaman['id']}' data-nama='{$rowPeminjaman['nama']}' data-judul='{$rowPeminjaman['judul']}' data-nomor='{$rowPeminjaman['nomor']}' data-jumlah='{$rowPeminjaman['jumlah']}'>Ajukan</a>
+                            <a href='#' id='delete{$no}' data-id='{$rowPeminjaman['id']}'>Delete</a>
+                            </td>";
+                        echo "</tr>";
+                        $no++;
+                    }
+                    ?>
                 </tbody>
             </table>
             <div class="btnpinjam" style="position: absolute; left: 1250px; top: 400px;">
@@ -168,7 +177,65 @@
         </div>
         </main>
     </section>
+    <script>
+        <?php for ($i = 1; $i <= $no; $i++) : ?>
+            document.getElementById('delete<?php echo $i; ?>').addEventListener('click', function () {
+                var idToDelete = this.getAttribute('data-id');
+                var confirmation = confirm("Apakah Anda yakin ingin menghapus data ini?");
+                if (confirmation) {
+                    window.location.href = 'hapus_data.php?id=' + idToDelete + '&name=cart_peminjaman';
+                }
+            });
+        <?php endfor; ?>
+    </script>
+    <script>
+        // Tambahkan event listener untuk setiap input tanggal
+        <?php for ($i = 1; $i <= $no; $i++) : ?>
+            document.getElementById('tanggal<?php echo $i; ?>').addEventListener('change', function () {
+                updateHref(<?php echo $i; ?>, 'tanggal');
+            });
 
+            // Tambahkan event listener untuk setiap input tenggat
+            document.getElementById('tenggat<?php echo $i; ?>').addEventListener('change', function () {
+                updateHref(<?php echo $i; ?>, 'tenggat');
+            });
+        <?php endfor; ?>
+
+        function updateHref(index, type) {
+            // Ambil nilai tanggal dan tenggat dari input
+            var tanggalValue = document.getElementById('tanggal' + index).value;
+            var tenggatValue = document.getElementById('tenggat' + index).value;
+
+            // Ambil elemen <a> yang sesuai dengan index
+            var ajukanLink = document.getElementById('ajukan' + index);
+
+            // Dapatkan data judul dan nomor dari atribut data
+            var judul = ajukanLink.getAttribute('data-judul');
+            var nomor = ajukanLink.getAttribute('data-nomor');
+            var jumlah = ajukanLink.getAttribute('data-jumlah');
+            var nama = ajukanLink.getAttribute('data-nama');
+            var id = ajukanLink.getAttribute('data-id');
+
+            // Update href berdasarkan jenis perubahan (tanggal atau tenggat)
+            if (type === 'tanggal') {
+                ajukanLink.href = 'proses_peminjaman.php?judul=' + encodeURIComponent(judul) +
+                    '&id=' + id +
+                    '&nomor=' + nomor +
+                    '&jumlah=' + jumlah +
+                    '&nama=' + nama +
+                    '&tanggal=' + tanggalValue +
+                    '&tenggat=' + tenggatValue;
+            } else if (type === 'tenggat') {
+                ajukanLink.href = 'proses_peminjaman.php?judul=' + encodeURIComponent(judul) +
+                    '&id=' + id +
+                    '&nomor=' + nomor +
+                    '&jumlah=' + jumlah +
+                    '&nama=' + nama +
+                    '&tanggal=' + tanggalValue +
+                    '&tenggat=' + tenggatValue;
+            }
+        }
+    </script>
     <script>
     // Function to open the modal
     function openModal() {

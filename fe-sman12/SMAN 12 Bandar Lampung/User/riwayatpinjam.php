@@ -1,3 +1,21 @@
+<?php
+session_start();
+
+include 'config.php';
+
+// Fetch data from the "peminjaman" table
+$queryPeminjaman = "SELECT * FROM peminjaman";
+$resultPeminjaman = mysqli_query($conn, $queryPeminjaman);
+
+// Check if the query was successful
+if (!$resultPeminjaman) {
+    die("Query failed: " . mysqli_error($conn));
+}
+
+// Close the database connection
+mysqli_close($conn);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -108,51 +126,31 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th></th>
-                        <th></th>
                         <th>Nomor Buku</th>
                         <th>Judul Buku</th>
                         <th>Tanggal Pinjam</th>
                         <th>Tanggal Kembali</th>
                         <th>Jumlah</th>
-                        <th></th>
-
+                        <th>Status Peminjaman</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1.</td>
-                        <td></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-
-                    </tr>
-                    <tr>
-                        <td>2.</td>
-                        <td></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-
-                    </tr>
-                    <tr>
-                        <td>3.</td>
-                        <td></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-
-                    </tr>
+                <?php
+                    $no = 1; 
+                    while ($rowPeminjaman = mysqli_fetch_assoc($resultPeminjaman)) {
+                        $rowColor = ($no % 2 == 0) ? '#9EDDFF' : '#F4F4F4'; 
+                        echo "<tr style='background-color: {$rowColor};'>";
+                        echo "<td style='text-align: center;'>{$no}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['nomor']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['judul']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['tanggal']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['tenggat']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['jumlah']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['status']}</td>";
+                        echo "</tr>";
+                        $no++; 
+                    }
+                    ?>
                 </tbody>
             </table>
 

@@ -130,33 +130,6 @@
                         <td>Rp2000</td>
 
                     </tr>
-                    <tr>
-                        <td>2.</td>
-                        <td><input type="checkbox" name="CHECK" value=""><br></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-                        <td>2 Hari</td>
-                        <td>Rp2000</td>
-
-                    </tr>
-                    <tr>
-                        <td>3.</td>
-                        <td><input type="checkbox" name="CHECK" value=""><br></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-                        <td>2 Hari</td>
-                        <td>Rp2000</td>
-
-
-                    </tr>
                 </tbody>
             </table>
             <div class="btnpinjam" style="position: absolute; left: 1250px; top: 400px;">

@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
-$username = "admin";
-$password = "admin";
+$username = "root";
+$password = "pFQL3]luH-@]V.-F";
 $dbname = "siperpus_sman12";
 
 // Membuat koneksi

@@ -10,7 +10,7 @@ if (!isset($_SESSION['username'])) {
 include 'koneksi.php';
 
 // Fetch data from the "peminjaman" table
-$queryRiwayatPinjam = "SELECT * FROM riwayat_pinjam";
+$queryRiwayatPinjam = "SELECT * FROM peminjaman WHERE status != 'menunggu'";
 $resultRiwayatPinjam = mysqli_query($conn, $queryRiwayatPinjam);
 
 // Check if the query was successful
@@ -102,6 +102,9 @@ mysqli_close($conn);
 
                     <!-- Kolom "jumlah" -->
                     <td style="text-align: center; padding: 10px;">Jumlah</td>
+
+                    <!-- Kolom "Status" -->
+                    <td style="text-align: center; padding: 10px;">Status</td>
                 </tr>
             </thead>
             <tbody>
@@ -117,6 +120,7 @@ while ($rowRiwayatPinjam = mysqli_fetch_assoc($resultRiwayatPinjam)) {
     echo "<td style='text-align: center;'>{$rowRiwayatPinjam['tanggal']}</td>";
     echo "<td style='text-align: center;'>{$rowRiwayatPinjam['tenggat']}</td>";
     echo "<td style='text-align: center;'>{$rowRiwayatPinjam['jumlah']}</td>";
+    echo "<td style='text-align: center;'>{$rowRiwayatPinjam['status']}</td>";
     $no++; // Increment the sequential number for the next row
 }
 ?>
