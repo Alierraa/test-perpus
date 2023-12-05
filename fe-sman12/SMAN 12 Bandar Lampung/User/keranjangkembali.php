@@ -1,3 +1,20 @@
+<?php
+session_start();
+
+include 'config.php';
+
+// Fetch data from the "peminjaman" table
+$queryPeminjaman = "SELECT * FROM peminjaman WHERE status = 'disetujui'";
+$resultPeminjaman = mysqli_query($conn, $queryPeminjaman);
+// Check if the query was successful
+if (!$resultPeminjaman) {
+    die("Query failed: " . mysqli_error($conn));
+}
+
+// Close the database connection
+mysqli_close($conn);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -97,39 +114,54 @@
     <section class="hero">
         <div class="table-data">
             <div class="head">
-                <p class="right"><a href="keranjangkembali.php">riwayat pengembalian</a> </p>
+                <p class="right"><a href="riwayatkembali.php">riwayat pengembalian</a> </p>
             </div>
             <table>
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th></th>
-                        <th></th>
+                        <th>Nama</th>
                         <th>Nomor Buku</th>
                         <th>Judul Buku</th>
                         <th>Tanggal Pinjam</th>
                         <th>Tanggal Kembali</th>
                         <th>Jumlah</th>
-                        <th>Terlambat</th>
+                        <th>Keterlambatan</th>
                         <th>Denda</th>
-                        <th></th>
-
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1.</td>
-                        <td><input type="checkbox" name="CHECK" value=""><br></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-                        <td>2 Hari</td>
-                        <td>Rp2000</td>
+                <?php
+                    $no = 1;
+                    while ($rowPeminjaman = mysqli_fetch_assoc($resultPeminjaman)) {
+                        $rowColor = ($no % 2 == 0) ? '#9EDDFF' : '#F4F4F4';
 
-                    </tr>
+                        // Calculate Keterlambatan and Denda
+                        $tenggatDate = strtotime($rowPeminjaman['tenggat']);
+                        $todayDate = strtotime(date('Y-m-d'));
+
+                        $keterlambatan = max(0, floor(($todayDate - $tenggatDate) / (60 * 60 * 24)));
+                        $denda = $keterlambatan * 1000;
+
+                        echo "<tr style='background-color: {$rowColor};'>";
+                        echo "<td style='text-align: center;'>{$no}</td>"; 
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['nama']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['nomor']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['judul']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['tanggal']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['tenggat']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPeminjaman['jumlah']}</td>";
+                        echo "<td style='text-align: center;'>{$keterlambatan} hari</td>";
+                        echo "<td style='text-align: center;'>Rp. {$denda}</td>";
+                        echo "<td style='text-align: center; padding: 10px;'>
+                                <a href='add_pengembalian.php?nama={$rowPeminjaman['nama']}&nomor={$rowPeminjaman['nomor']}&judul={$rowPeminjaman['judul']}&tanggal={$rowPeminjaman['tanggal']}&tenggat={$rowPeminjaman['tenggat']}&jumlah={$rowPeminjaman['jumlah']}&denda={$denda}&status=menunggu' style='color:green'>Ajukan Pengembalian</a>
+                            </td>";
+                        echo "</tr>";
+
+                        $no++;
+                    }
+                    ?>
                 </tbody>
             </table>
             <div class="btnpinjam" style="position: absolute; left: 1250px; top: 400px;">

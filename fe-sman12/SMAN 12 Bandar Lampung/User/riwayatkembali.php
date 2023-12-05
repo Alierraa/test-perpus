@@ -1,3 +1,20 @@
+<?php
+session_start();
+
+include 'config.php';
+
+// Fetch data from the "pengembalian" table
+$queryPengembalian = "SELECT * FROM pengembalian WHERE status = 'disetujui'";
+$resultPengembalian = mysqli_query($conn, $queryPengembalian);
+// Check if the query was successful
+if (!$resultPengembalian) {
+    die("Query failed: " . mysqli_error($conn));
+}
+
+// Close the database connection
+mysqli_close($conn);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -108,8 +125,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th></th>
-                        <th></th>
+                        <th>Nama</th>
                         <th>Nomor Buku</th>
                         <th>Judul Buku</th>
                         <th>Tanggal Pinjam</th>
@@ -117,51 +133,35 @@
                         <th>Jumlah</th>
                         <th>Terlambat</th>
                         <th>Denda</th>
-                        <th></th>
 
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1.</td>
-                        <td></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-                        <td>2 Hari</td>
-                        <td>Rp2000</td>
+                <?php
+                    $no = 1;
+                    while ($rowPengembalian = mysqli_fetch_assoc($resultPengembalian)) {
+                        $rowColor = ($no % 2 == 0) ? '#9EDDFF' : '#F4F4F4';
+                        // Calculate Keterlambatan and Denda
+                        $tenggatDate = strtotime($rowPengembalian['tenggat']);
+                        $todayDate = strtotime(date('Y-m-d'));
 
-                    </tr>
-                    <tr>
-                        <td>2.</td>
-                        <td></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-                        <td>2 Hari</td>
-                        <td>Rp2000</td>
+                        $keterlambatan = max(0, floor(($todayDate - $tenggatDate) / (60 * 60 * 24)));
+                        $denda = $keterlambatan * 1000;
+                        echo "<tr style='background-color: {$rowColor};'>";
+                        echo "<td style='text-align: center;'>{$no}</td>"; 
+                        echo "<td style='text-align: center;'>{$rowPengembalian['nama']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPengembalian['nomor']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPengembalian['judul']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPengembalian['tanggal']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPengembalian['tenggat']}</td>";
+                        echo "<td style='text-align: center;'>{$rowPengembalian['jumlah']}</td>";
+                        echo "<td style='text-align: center;'>{$keterlambatan} hari</td>";
+                        echo "<td style='text-align: center;'>{$rowPengembalian['denda']}</td>";
+                        echo "</tr>";
 
-                    </tr>
-                    <tr>
-                        <td>3.</td>
-                        <td></td>
-                        <td><img src="img/sman12.png" alt=""></td>
-                        <td>xxx</td>
-                        <td>123</td>
-                        <td><input type="date"></td>
-                        <td><input type="date"></td>
-                        <td>40</td>
-                        <td>2 Hari</td>
-                        <td>Rp2000</td>
-
-
-                    </tr>
+                        $no++;
+                    }
+                    ?>
                 </tbody>
             </table>
 

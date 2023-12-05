@@ -155,51 +155,51 @@ mysqli_close($conn);
                 </tr>
             </thead>
             <tbody>
-                <?php
-$no = 1; // Initialize a variable to store the sequential number
-while ($rowPeminjaman = mysqli_fetch_assoc($resultPeminjaman)) {
-    $rowColor = ($no % 2 == 0) ? '#9EDDFF' : '#F4F4F4'; // Set background color based on row number
-    echo "<tr style='background-color: {$rowColor};'>";
-    echo "<td style='text-align: center;'>{$no}</td>"; // Display the sequential number
-    echo "<td style='text-align: center;'>{$rowPeminjaman['nama']}</td>";
-    echo "<td style='text-align: center;'>{$rowPeminjaman['nomor']}</td>";
-    echo "<td style='text-align: center;'>{$rowPeminjaman['judul']}</td>";
-    echo "<td style='text-align: center;'>{$rowPeminjaman['tanggal']}</td>";
-    echo "<td style='text-align: center;'>{$rowPeminjaman['tenggat']}</td>";
-    echo "<td style='text-align: center;'>{$rowPeminjaman['jumlah']}</td>";
-    $statusColor = '';
-    if ($rowPeminjaman['status'] == 'menunggu') {
-        $statusColor = 'color: gray;';
-    } elseif ($rowPeminjaman['status'] == 'disetujui') {
-        $statusColor = 'color: green;';
-    } elseif ($rowPeminjaman['status'] == 'ditolak') {
-        $statusColor = 'color: red;';
-    }
-    echo "<td style='text-align: center; padding: 10px; {$statusColor}'>{$rowPeminjaman['status']}</td>";
+                            <?php
+            $no = 1; // Initialize a variable to store the sequential number
+            while ($rowPeminjaman = mysqli_fetch_assoc($resultPeminjaman)) {
+                $rowColor = ($no % 2 == 0) ? '#9EDDFF' : '#F4F4F4'; // Set background color based on row number
+                echo "<tr style='background-color: {$rowColor};'>";
+                echo "<td style='text-align: center;'>{$no}</td>"; // Display the sequential number
+                echo "<td style='text-align: center;'>{$rowPeminjaman['nama']}</td>";
+                echo "<td style='text-align: center;'>{$rowPeminjaman['nomor']}</td>";
+                echo "<td style='text-align: center;'>{$rowPeminjaman['judul']}</td>";
+                echo "<td style='text-align: center;'>{$rowPeminjaman['tanggal']}</td>";
+                echo "<td style='text-align: center;'>{$rowPeminjaman['tenggat']}</td>";
+                echo "<td style='text-align: center;'>{$rowPeminjaman['jumlah']}</td>";
+                $statusColor = '';
+                if ($rowPeminjaman['status'] == 'menunggu') {
+                    $statusColor = 'color: gray;';
+                } elseif ($rowPeminjaman['status'] == 'disetujui') {
+                    $statusColor = 'color: green;';
+                } elseif ($rowPeminjaman['status'] == 'ditolak') {
+                    $statusColor = 'color: red;';
+                }
+                echo "<td style='text-align: center; padding: 10px; {$statusColor}'>{$rowPeminjaman['status']}</td>";
 
-    if($rowPeminjaman['status'] == 'menunggu') {
-    echo "<td style='text-align: center; padding: 10px;'>
-            <a href='#' class='status-link' style='color:green' data-status='disetujui' data-id='{$rowPeminjaman['id']}'>Disetujui</a>
-            <a href='#' class='status-link' style='color:red' data-status='ditolak' data-id='{$rowPeminjaman['id']}'>Ditolak</a>
-            <img src='assets/global/iconhapus.png' alt='Hapus' style='cursor:pointer; scale: 0.7' onclick='hapusData(this)' data-id='{$rowPeminjaman['id']}'>
-        </td>";
-    } else if($rowPeminjaman['status'] == 'disetujui') {
-        echo "<td style='text-align: center; padding: 10px;'>
-            <a href='#' class='status-link' style='color:red' data-status='ditolak' data-id='{$rowPeminjaman['id']}'>Ditolak</a>
-            <a href='#' class='status-link' style='color:gray' data-status='menunggu' data-id='{$rowPeminjaman['id']}'>Menunggu</a>
-            <img src='assets/global/iconhapus.png' alt='Hapus' style='cursor:pointer; scale: 0.7' onclick='hapusData(this)' data-id='{$rowPeminjaman['id']}'>
-        </td>";
-    } else if($rowPeminjaman['status'] == 'ditolak'){
-        echo "<td style='text-align: center; padding: 10px;'>
-            <a href='#' class='status-link' style='color:green' data-status='disetujui' data-id='{$rowPeminjaman['id']}'>Disetujui</a>
-            <a href='#' class='status-link' style='color:gray' data-status='menunggu' data-id='{$rowPeminjaman['id']}'>Menunggu</a>
-            <img src='assets/global/iconhapus.png' alt='Hapus' style='cursor:pointer; scale: 0.7' onclick='hapusData(this)' data-id='{$rowPeminjaman['id']}'>
-        </td>";
-    }
-    echo "</tr>";
-    $no++;
-}
-?>
+                if($rowPeminjaman['status'] == 'menunggu') {
+                echo "<td style='text-align: center; padding: 10px;'>
+                        <a href='javascript:void(0)' class='status-link' style='color:green' data-status='disetujui' data-id='{$rowPeminjaman['id']}'>Disetujui</a>
+                        <a href='javascript:void(0)' class='status-link' style='color:red' data-status='ditolak' data-id='{$rowPeminjaman['id']}'>Ditolak</a>
+                        <img src='assets/global/iconhapus.png' alt='Hapus' style='cursor:pointer; scale: 0.7' onclick='hapusData(this)' data-id='{$rowPeminjaman['id']}'>
+                    </td>";
+                } else if($rowPeminjaman['status'] == 'disetujui') {
+                    echo "<td style='text-align: center; padding: 10px;'>
+                        <a href='javascript:void(0)' class='status-link' style='color:red' data-status='ditolak' data-id='{$rowPeminjaman['id']}'>Ditolak</a>
+                        <a href='javascript:void(0)' class='status-link' style='color:gray' data-status='menunggu' data-id='{$rowPeminjaman['id']}'>Menunggu</a>
+                        <img src='assets/global/iconhapus.png' alt='Hapus' style='cursor:pointer; scale: 0.7' onclick='hapusData(this)' data-id='{$rowPeminjaman['id']}'>
+                    </td>";
+                } else if($rowPeminjaman['status'] == 'ditolak'){
+                    echo "<td style='text-align: center; padding: 10px;'>
+                        <a href='javascript:void(0)' class='status-link' style='color:green' data-status='disetujui' data-id='{$rowPeminjaman['id']}'>Disetujui</a>
+                        <a href='javascript:void(0)' class='status-link' style='color:gray' data-status='menunggu' data-id='{$rowPeminjaman['id']}'>Menunggu</a>
+                        <img src='assets/global/iconhapus.png' alt='Hapus' style='cursor:pointer; scale: 0.7' onclick='hapusData(this)' data-id='{$rowPeminjaman['id']}'>
+                    </td>";
+                }
+                echo "</tr>";
+                $no++;
+            }
+            ?>
 
             </tbody>
         </table>

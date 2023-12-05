@@ -8,8 +8,28 @@ if (!isset($_SESSION['username'])) {
 }
 
 include 'koneksi.php';
+if (isset($_POST['id'], $_POST['status'])) {
+    $id = $_POST['id'];
+    $status = $_POST['status'];
 
-// Fetch data from the "peminjaman" table
+    // Perform the database update
+    $sql = "UPDATE pengembalian SET status = '$status' WHERE id = $id";
+    $result = mysqli_query($conn, $sql);
+
+    if ($result) {
+        // Update successful
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+    } else {
+        // Update failed
+        echo "Error updating status: " . mysqli_error($conn);
+    }
+} else {
+    // Missing parameters
+    echo "Invalid request";
+}
+
+
+// Fetch data from the "pengembalian" table
 $queryPengembalian = "SELECT * FROM pengembalian";
 $resultPengembalian = mysqli_query($conn, $queryPengembalian);
 
@@ -126,6 +146,9 @@ mysqli_close($conn);
                     <!-- Kolom "jumlah" -->
                     <td style="text-align: center; padding: 10px;">Jumlah</td>
 
+                    <!-- Kolom "denda" -->
+                    <td style="text-align: center; padding: 10px;">Denda</td>
+
                     <!-- Kolom "aksi" -->
                     <td style="text-align: center; padding: 10px;">Aksi</td>
                 </tr>
@@ -143,11 +166,37 @@ while ($rowPengembalian = mysqli_fetch_assoc($resultPengembalian)) {
     echo "<td style='text-align: center;'>{$rowPengembalian['tanggal']}</td>";
     echo "<td style='text-align: center;'>{$rowPengembalian['tenggat']}</td>";
     echo "<td style='text-align: center;'>{$rowPengembalian['jumlah']}</td>";
+    echo "<td style='text-align: center;'>Rp. {$rowPengembalian['denda']}</td>";
     // You can add the actions column as needed
+    $statusColor = '';
+    if ($rowPengembalian['status'] == 'menunggu') {
+        $statusColor = 'color: gray;';
+    } elseif ($rowPengembalian['status'] == 'disetujui') {
+        $statusColor = 'color: green;';
+    } elseif ($rowPengembalian['status'] == 'ditolak') {
+        $statusColor = 'color: red;';
+    }
+    echo "<td style='text-align: center; padding: 10px; {$statusColor}'>{$rowPengembalian['status']}</td>";
+
+    if($rowPengembalian['status'] == 'menunggu') {
     echo "<td style='text-align: center; padding: 10px;'>
-                        <img src='assets/dashboard/iconedit.png' alt='Simpan' style='cursor:pointer; scale: 0.7' onclick='ubahData(this)'>
-                        <img src='assets/global/iconhapus.png' alt='Hapus' style='cursor:pointer; scale: 0.7' onclick='hapusData(this)'>
-                    </td>";
+            <a href='javascript:void(0)' class='status-link' style='color:green' data-status='disetujui' data-id='{$rowPengembalian['id']}'>Disetujui</a>
+            <a href='javascript:void(0)' class='status-link' style='color:red' data-status='ditolak' data-id='{$rowPengembalian['id']}'>Ditolak</a>
+            <img src='assets/global/iconhapus.png' alt='Hapus' style='cursor:pointer; scale: 0.7' onclick='hapusData(this)' data-id='{$rowPengembalian['id']}'>
+        </td>";
+    } else if($rowPengembalian['status'] == 'disetujui') {
+        echo "<td style='text-align: center; padding: 10px;'>
+            <a href='javascript:void(0)' class='status-link' style='color:red' data-status='ditolak' data-id='{$rowPengembalian['id']}'>Ditolak</a>
+            <a href='javascript:void(0)' class='status-link' style='color:gray' data-status='menunggu' data-id='{$rowPengembalian['id']}'>Menunggu</a>
+            <img src='assets/global/iconhapus.png' alt='Hapus' style='cursor:pointer; scale: 0.7' onclick='hapusData(this)' data-id='{$rowPengembalian['id']}'>
+        </td>";
+    } else if($rowPengembalian['status'] == 'ditolak'){
+        echo "<td style='text-align: center; padding: 10px;'>
+            <a href='javascript:void(0)' class='status-link' style='color:green' data-status='disetujui' data-id='{$rowPengembalian['id']}'>Disetujui</a>
+            <a href='javascript:void(0)' class='status-link' style='color:gray' data-status='menunggu' data-id='{$rowPengembalian['id']}'>Menunggu</a>
+            <img src='assets/global/iconhapus.png' alt='Hapus' style='cursor:pointer; scale: 0.7' onclick='hapusData(this)' data-id='{$rowPengembalian['id']}'>
+        </td>";
+    }
     echo "</tr>";
     $no++; // Increment the sequential number for the next row
 }
@@ -163,6 +212,68 @@ while ($rowPengembalian = mysqli_fetch_assoc($resultPengembalian)) {
     <?php include 'popup.php'; ?>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get all elements with the class 'status-link'
+            var statusLinks = document.querySelectorAll('.status-link');
+
+            // Add click event listeners to each status link
+            statusLinks.forEach(function (link) {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+
+                    // Get the data attributes
+                    var status = this.getAttribute('data-status');
+                    var id = this.getAttribute('data-id');
+
+                    // Perform AJAX request to update the status
+                    updateStatus(id, status);
+                });
+            });
+
+            // Function to perform the AJAX request
+            function updateStatus(id, status) {
+                console.log('Updating status:', id, status);
+                // Create a new XMLHttpRequest object
+                var xhr = new XMLHttpRequest();
+
+                xhr.open('POST', 'pengembalian.php', true);
+
+                // Set the request header
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        // Success
+                        // Reload the page after a short delay
+                        setTimeout(function() {
+                            location.reload();
+                        }, 500);
+                    } else {
+                        // Error
+                        alert('Error: ' + xhr.status);
+                    }
+                };
+
+                // Prepare the data to be sent in the request body
+                var data = 'id=' + encodeURIComponent(id) + '&status=' + encodeURIComponent(status);
+
+                // Send the request with the data
+                xhr.send(data);
+            }
+        });
+    </script>
+
+    <script>
+        // Fungsi hapusData untuk menghapus data dengan konfirmasi
+        function hapusData(element) {
+            var idToDelete = element.getAttribute('data-id');
+            var confirmation = confirm("Apakah Anda yakin ingin menghapus data ini?");
+            if (confirmation) {
+                window.location.href = 'hapus_data.php?id=' + idToDelete + '&name=pengembalian';
+            }
+        }
+    </script>
     <script src=" https://code.jquery.com/jquery-3.2.1.slim.min.js "></script>
     <script src=" https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js "></script>
     <script src=" https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js "></script>

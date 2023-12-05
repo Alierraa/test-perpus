@@ -9,8 +9,8 @@ if (!isset($_SESSION['username'])) {
 
 include 'koneksi.php';
 
-// Fetch data from the "peminjaman" table
-$queryRiwayatKembali = "SELECT * FROM riwayat_kembali";
+// Fetch data from the "pengembalian" table
+$queryRiwayatKembali = "SELECT * FROM pengembalian WHERE status != 'menunggu'";
 $resultRiwayatKembali = mysqli_query($conn, $queryRiwayatKembali);
 
 // Check if the query was successful
@@ -99,6 +99,9 @@ mysqli_close($conn);
 
                     <!-- Kolom "jumlah" -->
                     <td style="text-align: center; padding: 10px;">Jumlah</td>
+
+                    <!-- Kolom "denda" -->
+                    <td style="text-align: center; padding: 10px;">Denda</td>
                 </tr>
             </thead>
             <tbody>
@@ -113,7 +116,8 @@ while ($rowRiwayatKembali = mysqli_fetch_assoc($resultRiwayatKembali)) {
     echo "<td style='text-align: center;'>{$rowRiwayatKembali['tanggal']}</td>";
     echo "<td style='text-align: center;'>{$rowRiwayatKembali['tenggat']}</td>";
     echo "<td style='text-align: center;'>{$rowRiwayatKembali['jumlah']}</td>";
-    $no++; // Increment the sequential number for the next row
+    echo "<td style='text-align: center;'>Rp. {$rowRiwayatKembali['denda']}</td>";
+    $no++;
 }
 ?>
             </tbody>
